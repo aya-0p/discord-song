@@ -9,7 +9,8 @@ VOICEVOX=http://localhost:50021 # VOICEVOX EngineのURL
 - その後、以下を実行
 
 ```sh
-npm ci
+npm ci # npm
+pnpm i # pnpm
 ```
 
 ## 実行
