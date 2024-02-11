@@ -1,8 +1,10 @@
 import { Client, GuildMember, IntentsBitField, Snowflake, TextBasedChannel, VoiceChannel } from "discord.js";
 import {
   AudioPlayer,
+  AudioPlayerStatus,
   NoSubscriberBehavior,
   VoiceConnection,
+  VoiceConnectionStatus,
   createAudioPlayer,
   createAudioResource,
   joinVoiceChannel,
@@ -11,6 +13,8 @@ import { commands } from "./commands";
 import { VOICEVOX } from "./voicevox";
 import { Duplex } from "stream";
 import { isSong, parseNotes } from "./parseSong";
+import { Queue } from "./queue.js";
+import { entersState } from "@discordjs/voice";
 
 const client = new Client({
   intents: [
@@ -33,8 +37,7 @@ client.on("messageCreate", (message) => {
       notes: parseNotes(message.content),
     }).then((d) =>
       VOICEVOX.frameSynthesis(d, 3001).then((data) => {
-        const resource = createAudioResource(Duplex.from(data));
-        voiceConnection.audioPlayer.play(resource);
+        voiceConnection.waitingList.add(data);
       })
     );
   } else {
@@ -42,9 +45,7 @@ client.on("messageCreate", (message) => {
     const speaker = 3; // 3: ずんだもん（ノーマル）
     VOICEVOX.audioQuery(text, speaker).then((audioQuery) => {
       VOICEVOX.synthesis(audioQuery, speaker).then((buffer) => {
-        const resource = createAudioResource(Duplex.from(buffer));
-        // TODO: 前に再生していたものを止めて開始するため、音声再生の順番を制御する必要がある
-        voiceConnection.audioPlayer.play(resource);
+        voiceConnection.waitingList.add(buffer);
       });
     });
   }
@@ -111,6 +112,20 @@ client.on("interactionCreate", async (interaction) => {
             selfMute: false,
           }),
           audioPlayer,
+          waitingList: new Queue<Buffer>(async (data) => {
+            if (
+              [
+                VoiceConnectionStatus.Connecting,
+                VoiceConnectionStatus.Destroyed,
+                VoiceConnectionStatus.Disconnected,
+              ].includes(newConnection.connection.state.status)
+            )
+              return;
+            const resource = createAudioResource(Duplex.from(data));
+            newConnection.audioPlayer.play(resource);
+            await entersState(newConnection.audioPlayer, AudioPlayerStatus.Idle, 60 * 60 * 1000);
+            return;
+          }),
         };
         newConnection.connection.subscribe(newConnection.audioPlayer);
         voiceConnections.set(guild.id, newConnection);
@@ -184,4 +199,5 @@ interface Connection {
   textChannel: TextBasedChannel | null;
   connection: VoiceConnection;
   audioPlayer: AudioPlayer;
+  waitingList: Queue<Buffer>;
 }
