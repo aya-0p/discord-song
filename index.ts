@@ -33,13 +33,15 @@ client.on("messageCreate", (message) => {
   const voiceConnection = voiceConnections.get(message.guildId ?? "");
   if (!voiceConnection) return;
   if (isSong(message.content)) {
-    VOICEVOX.singFrameAudioQuery(6000, {
-      notes: parseNotes(message.content),
-    }).then((d) =>
-      VOICEVOX.frameSynthesis(d, 3001).then((data) => {
+    const score = parseNotes(message.content);
+    VOICEVOX.singFrameAudioQuery(score.teacher, {
+      notes: score.notes,
+    }).then((singFrameAudioQuery) => {
+      singFrameAudioQuery.f0 = singFrameAudioQuery.f0.map((f0) => f0 * 2 ** score.pitchChanges);
+      VOICEVOX.frameSynthesis(singFrameAudioQuery, score.singer).then((data) => {
         voiceConnection.waitingList.add(data);
-      })
-    );
+      });
+    });
   } else {
     const text = message.content;
     const speaker = 3; // 3: ずんだもん（ノーマル）

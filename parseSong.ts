@@ -1,94 +1,57 @@
 import { Note } from "./voicevox";
 
 /**
- * # 楽譜
- * @version 1
- *
- * ```
- * [曲開始文字][区切り文字][音符...]
- * ```
- *
- * ## 曲開始文字
- * - sなどの曲であることを示す文字
- *
- * ## 音符
- * ```
- * [高さ基準?][高さ上下?][音][半音?][長さ?][連符?][付点?][区切り文字]
- * ```
- * - 定義されていない文字は無視される
- * - 高さ基準: その音がどの位置にあるか, 数値 (デフォルト4)
- * - 高さ上下: その音が高さ基準を超えたり下回った位置にいるか, h/l (デフォルトなし)
- * - 音: 音の種類, c,d,e,f,g,a,b (ど,れ,み,ふ,そ,ら,し), 「ふぁ」は2文字のため「ふ」で判定。2文字目は無視
- * - 半音: 音が半音上がったり下がったりするか, #/b (デフォルトなし)
- * - 長さ: その音の長さ(n分音符), 1, 2, 4, 8, 6(16分) (デフォルト8)
- * - 連符: その音が連符(3連付や5連符など)か, 数値 (デフォルト1) **連符を設定する時は長さの設定が必要**
- * - 付点: その音が付点音符か(付点で長さが1.5倍), "+" (デフォルトなし)
- * - 区切り文字: 音符の終わりを示す
- *
- * @example 1(「ド」から上の「ド」まで)
- * 歌 どー、れー、みー、ふぁー、そー、らー、しー、上どー。
- * s c- d- e- f- g- a- b- hc-
- * s c- d- e- f- g- a- b- 5c-
- * @example 2 (かえるのうた)
- * ```
- * s
- * c-,d-,e-,f- e-,d-,c-,n- e-,f-,g-,a- g-,f-,e-,n-;
- * c-,n-,c-,n- c-,n-,c-,n- c,c,d,d,e,e,f,f e-,d-,c-,n-;
- * ```
- */
-const _ = null;
-/**
  * 曲の開始
  */
-const songStart = ["歌", "s", "S"];
+const songStart = ["歌", "曲", "s", "S"];
 /**
  * 区切り文字
  */
-const sep = [" ", "　", "、", "。", "，", "．", ",", ".", ":", "：", "\n", "\r", "\t", ";", "；"];
+const sep = [" ", "　", "\n", "\r", "\t", ";", "；"];
 
 // 音
 /**
  * ド
  */
-const do_ = ["ド", "c", "C", "ど", "と", "ト", "ﾄ", "ｃ", "Ｃ"];
+const do_ = ["ド", "c", "C", "ど", "と", "ト"];
 /**
  * レ
  */
-const re = ["レ", "d", "D", "れ", "ﾚ", "ｄ", "Ｄ"];
+const re = ["レ", "d", "D", "れ"];
 /**
  * ミ
  */
-const mi = ["ミ", "e", "E", "み", "ﾐ", "ｅ", "Ｅ"];
+const mi = ["ミ", "e", "E", "み"];
 /**
  * ファ
  */
-const fa = ["フ", "f", "F", "ふ", "ﾌ", "ｆ", "Ｆ"];
+const fa = ["フ", "f", "F", "ふ"];
 /**
  * ソ
  */
-const so = ["ソ", "g", "G", "そ", "ｿ", "ｇ", "Ｇ"];
+const so = ["ソ", "g", "G", "そ"];
 /**
  * ラ
  */
-const ra = ["ラ", "a", "A", "ら", "ﾗ", "ａ", "Ａ"];
+const ra = ["ラ", "a", "A", "ら"];
 /**
  * シ
  */
-const si = ["シ", "b", "B", "し", "ｼ", "ｂ", "Ｂ"];
+const si = ["シ", "b", "B", "し"];
 /**
  * 休符
  */
-const rest = ["n", "N", "休", "ｎ", "Ｎ", "ん", "ﾝ", "ｍ", "Ｍ", "m", "M", "ン"];
+const rest = ["n", "N", "休", "ん", "m", "M", "ン"];
 
 // 高さ
 /**
  * 高
  */
-const high = ["上", "う", "ウ", "ｳ", "h", "H", "ｈ", "Ｈ", "↑"];
+const high = ["上", "h", "H", "↑"];
 /**
  * 低
  */
-const low = ["下", "l", "L", "ｌ", "Ｌ", "↓"];
+const low = ["下", "l", "L", "↓"];
 
 // 数字
 /**
@@ -156,15 +119,17 @@ const note1 = one;
 /**
  * 3連符
  */
-const note3 = ["3", "３", "三"];
+const note3 = three;
 /**
  * 付点
  * 1つ前の音符の長さが1.5倍になる
  */
 const notePlus = ["+", "＋", ".", "。"];
 
+const lyrics = ["_", "＿", "/"];
+
 // 半音
-const sharp = ["#, ＃", "♯"];
+const sharp = ["#", "＃", "♯"];
 const flat = ["b", "ｂ", "♭"];
 
 const basePitches = [...zero, ...one, ...two, ...three, ...four, ...five, ...six, ...seven, ...eight, ...nine];
@@ -175,30 +140,44 @@ const noteLengths = [...note1, ...note2, ...note4, ...note8, ...note16];
 const tuplets = [...note3];
 // 全ての制御文字
 // 開始文字と区切り文字を除く
-const controlChars = [...basePitches, "-", "ー", ...pitchOffsets, ...noteTypes, ...halfNotes, ...notePlus];
+const controlChars = [
+  ...basePitches,
+  "-",
+  "ー",
+  ...pitchOffsets,
+  ...noteTypes,
+  ...halfNotes,
+  ...notePlus,
+  ...lyrics,
+  "{",
+  "}",
+];
 
 // デフォルト値
 
 // テンポ
 // b分音符を1分(60秒に)a回打つ速さ
 // 音楽のテンポ
-const tempo = 120; // a
+const defaultTempo = 120; // a
 // テンポの対象音符
-const tempoNote = 4; // b
+const defaultTempoNote = 4; // b
 
 // 拍子記号
 // m分のn拍子
 // 1小節あたりの拍子数
-const meterHigh = 4; // n
+const defaultMeterHigh = 4; // n
 // 1拍が何分音符になるか
-const meterLow = 4; // m
+const defaultMeterLow = 4; // m
+
+// 歌詞
+const defaultLyric = "ら";
 
 const checkIsChar = (...arr: Array<Array<string>>) => {
   arr.forEach((inArr) =>
     inArr.forEach((text) => {
       if (text.length !== 1) {
         console.error(
-          `error: [checkIsChar] ${text} in ${inArr} is not 1 char, is ${text[0]} + ${text[1]} (${text.charCodeAt(
+          `error: [checkIsChar] ${text} is not 1 char, is ${text[0]} + ${text[1]} (${text.charCodeAt(
             0
           )} + ${text.charCodeAt(1)})`
         );
@@ -206,37 +185,7 @@ const checkIsChar = (...arr: Array<Array<string>>) => {
     })
   );
 };
-checkIsChar(
-  songStart,
-  sep,
-  do_,
-  re,
-  mi,
-  fa,
-  so,
-  ra,
-  si,
-  rest,
-  high,
-  low,
-  note1,
-  note16,
-  note2,
-  note3,
-  note4,
-  note8,
-  notePlus,
-  zero,
-  one,
-  two,
-  three,
-  four,
-  five,
-  six,
-  seven,
-  eight,
-  nine
-);
+checkIsChar(controlChars);
 
 export const isSong = (text: string) => {
   return songStart.some((t) => text[0] === t) && sep.some((t) => text[1] === t);
@@ -264,8 +213,8 @@ const calcFrame = ({ tempo, tempoNote, noteLength }: CalcFlameOptions, frameOffs
   };
 };
 
-const calcKey = (basePitch: number, noteType: number) => {
-  return 12 * (basePitch + 1) + noteType;
+const calcKey = (basePitch: number, noteType: number, pitchChanges: number) => {
+  return 12 * (basePitch + 1) + noteType + pitchChanges;
 };
 
 /**
@@ -273,25 +222,82 @@ const calcKey = (basePitch: number, noteType: number) => {
  * @param input
  */
 export const parseNotes = (input: string) => {
-  // TODO: 変更可能にする
-  let tempo = 120;
-  let tempoNote = 4;
-  let meterHigh = 4;
-  let meterLow = 4;
+  let tempo = defaultTempo;
+  let tempoNote = defaultTempoNote;
+  let meterHigh = defaultMeterHigh;
+  let meterLow = defaultMeterLow;
+  let teacher = 6000;
+  let singer = 3001;
+  let pitchChanges = 0;
+  let firstSettings = true;
   let frameOffset = { offset: 0 };
   const notes: Array<Note> = [];
   notes.push({ frame_length: 94, lyric: "" });
-  for (const noteStr of input.split(/[\.．。,、，:：;；\n\r\t\s]/)) {
+  for (const noteStr of input.split(/[\u0020\u3000\u000a\u000d\u0009;；]/)) {
     let noteType = -1;
     let noteLength = 8;
     let basePitch = 4;
-    let currentType = 1 as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    let currentType = 1 as -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    let lyric = defaultLyric;
+    let isLyricMode = false;
+    const settings = {
+      isReadingKey: true,
+      data: new Map<string, string>(),
+      tempKey: "",
+      tempValue: "",
+    };
+    if (noteStr[0] === "{") currentType = 0;
     for (const noteChar of noteStr) {
-      if (!controlChars.includes(noteChar)) continue;
+      if (!isLyricMode && currentType !== 0 && !controlChars.includes(noteChar)) continue;
       switch (currentType) {
+        case -1:
+          break;
         case 0: {
-          // TODO: 楽譜制御
-          console.error("未実装です", noteChar, noteStr);
+          if (noteChar === "{") null;
+          else if (noteChar === "}") {
+            settings.data.set(settings.tempKey, settings.tempValue);
+            for (const [key, value] of settings.data) {
+              switch (key) {
+                case "teacher": {
+                  if (!firstSettings) break;
+                  const changedTeacher = Number(value);
+                  if (Number.isInteger(changedTeacher)) teacher = changedTeacher;
+                  break;
+                }
+                case "singer": {
+                  if (!firstSettings) break;
+                  const changedSinger = Number(value);
+                  if (Number.isInteger(changedSinger)) singer = changedSinger;
+                  break;
+                }
+                case "pitch_changes": {
+                  if (!firstSettings) break;
+                  const changedPitchChanges = Number(value);
+                  if (Number.isInteger(changedPitchChanges)) pitchChanges = changedPitchChanges;
+                  break;
+                }
+                case "tempo": {
+                  const changedTempo = Number(value);
+                  if (Number.isInteger(changedTempo)) tempo = changedTempo;
+                  break;
+                }
+                case "tempo_note": {
+                  const changedtempo_note = Number(value);
+                  if (Number.isInteger(changedtempo_note)) tempoNote = changedtempo_note;
+                  break;
+                }
+              }
+            }
+            currentType = -1;
+          } else if (noteChar === ",") {
+            settings.data.set(settings.tempKey, settings.tempValue);
+            settings.tempKey = "";
+            settings.tempValue = "";
+            settings.isReadingKey = true;
+          } else if (noteChar === "=") settings.isReadingKey = false;
+          else if (settings.isReadingKey) settings.tempKey += noteChar;
+          else settings.tempValue += noteChar;
+          break;
         }
         case 1: {
           // 高さ基準
@@ -373,6 +379,19 @@ export const parseNotes = (input: string) => {
           // 付点
           if (notePlus.includes(noteChar)) {
             noteLength *= 1.5;
+            currentType = 8;
+            break;
+          }
+        }
+        case 8: {
+          // 歌詞
+          if (isLyricMode) {
+            lyric += noteChar;
+            break;
+          } else if (lyrics.includes(noteChar)) {
+            isLyricMode = true;
+            currentType = 8;
+            lyric = "";
             break;
           }
         }
@@ -389,13 +408,19 @@ export const parseNotes = (input: string) => {
       });
     else
       notes.push({
-        key: calcKey(basePitch, noteType),
+        key: calcKey(basePitch, noteType, pitchChanges),
         frame_length: calcFrame({ tempo, tempoNote, noteLength }, frameOffset).frameLength,
-        lyric: "ら",
+        lyric,
       });
+    firstSettings = false;
   }
   notes.push({ frame_length: 94, lyric: "" });
-  return notes;
+  return {
+    notes,
+    teacher,
+    singer,
+    pitchChanges,
+  };
 };
 
 interface CalcFlameOptions {
