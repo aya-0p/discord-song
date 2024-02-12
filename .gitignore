@@ -131,3 +131,4 @@ dist
 
 *.js
 out.wav
+test.ts
