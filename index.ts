@@ -37,7 +37,7 @@ client.on("messageCreate", (message) => {
     VOICEVOX.singFrameAudioQuery(score.teacher, {
       notes: score.notes,
     }).then((singFrameAudioQuery) => {
-      singFrameAudioQuery.f0 = singFrameAudioQuery.f0.map((f0) => f0 * 2 ** score.pitchChanges);
+      singFrameAudioQuery.f0 = singFrameAudioQuery.f0.map((f0) => f0 * 2 ** (score.voicePitch / 12));
       VOICEVOX.frameSynthesis(singFrameAudioQuery, score.singer).then((data) => {
         voiceConnection.waitingList.add(data);
       });

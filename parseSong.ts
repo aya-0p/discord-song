@@ -228,7 +228,8 @@ export const parseNotes = (input: string) => {
   let meterLow = defaultMeterLow;
   let teacher = 6000;
   let singer = 3001;
-  let pitchChanges = 0;
+  let scorePitch = 0;
+  let voicePitch = 0;
   let firstSettings = true;
   let frameOffset = { offset: 0 };
   const notes: Array<Note> = [];
@@ -270,10 +271,16 @@ export const parseNotes = (input: string) => {
                   if (Number.isInteger(changedSinger)) singer = changedSinger;
                   break;
                 }
-                case "pitch_changes": {
+                case "score_pitch": {
                   if (!firstSettings) break;
-                  const changedPitchChanges = Number(value);
-                  if (Number.isInteger(changedPitchChanges)) pitchChanges = changedPitchChanges;
+                  const changedScorePitch = Number(value);
+                  if (Number.isInteger(changedScorePitch)) scorePitch = changedScorePitch;
+                  break;
+                }
+                case "voice_pitch": {
+                  if (!firstSettings) break;
+                  const changedVoicePitch = Number(value);
+                  if (Number.isInteger(changedVoicePitch)) voicePitch = changedVoicePitch;
                   break;
                 }
                 case "tempo": {
@@ -408,7 +415,7 @@ export const parseNotes = (input: string) => {
       });
     else
       notes.push({
-        key: calcKey(basePitch, noteType, pitchChanges),
+        key: calcKey(basePitch, noteType, scorePitch),
         frame_length: calcFrame({ tempo, tempoNote, noteLength }, frameOffset).frameLength,
         lyric,
       });
@@ -419,7 +426,7 @@ export const parseNotes = (input: string) => {
     notes,
     teacher,
     singer,
-    pitchChanges,
+    voicePitch,
   };
 };
 
