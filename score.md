@@ -125,3 +125,9 @@ s
 c-,d-,e-,f- e-,d-,c-,n- e-,f-,g-,a- g-,f-,e-,n-;
 c-,n-,c-,n- c-,n-,c-,n- c,c,d,d,e,e,f,f e-,d-,c-,n-;
 ```
+3. いろいろ
+```
+s
+{singer=3002,teacher=6000,tempo=180,voice_pitch=2}
+c1_ど d2_れ e4_み f_ふぁ g6_そ
+```
