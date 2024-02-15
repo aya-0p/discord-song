@@ -12,7 +12,7 @@ import {
 import { commands } from "./commands";
 import { VOICEVOX } from "./voicevox";
 import { Duplex } from "stream";
-import { isSong, parseNotes } from "./parseSong";
+import { isSong, parseEasyScore, parseNotes } from "./parseSong";
 import { Queue } from "./queue.js";
 import { entersState } from "@discordjs/voice";
 
@@ -39,6 +39,15 @@ client.on("messageCreate", (message) => {
     }).then((singFrameAudioQuery) => {
       singFrameAudioQuery.f0 = singFrameAudioQuery.f0.map((f0) => f0 * 2 ** (score.voicePitch / 12));
       VOICEVOX.frameSynthesis(singFrameAudioQuery, score.singer).then((data) => {
+        voiceConnection.waitingList.add(data);
+      });
+    });
+  } else if (message.content.startsWith("き")) {
+    const score = parseEasyScore(message.content);
+    VOICEVOX.singFrameAudioQuery(6000, {
+      notes: score,
+    }).then((singFrameAudioQuery) => {
+      VOICEVOX.frameSynthesis(singFrameAudioQuery, 3001).then((data) => {
         voiceConnection.waitingList.add(data);
       });
     });
