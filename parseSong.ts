@@ -430,6 +430,116 @@ export const parseNotes = (input: string) => {
   };
 };
 
+const smallChar = [
+  "ぁ",
+  "ぃ",
+  "ぅ",
+  "ぇ",
+  "ぉ",
+  "っ",
+  "ゃ",
+  "ゅ",
+  "ょ",
+  "ゎ",
+  "ァ",
+  "ィ",
+  "ゥ",
+  "ェ",
+  "ォ",
+  "ャ",
+  "ュ",
+  "ョ",
+  "ヮ",
+];
+
+export const parseEasyScore = (input: string) => {
+  let isNote = true;
+  const notes: Array<Note> = [];
+  let noteLength = 8;
+  let key = NaN;
+  let keyShift = 0 as -1 | 0 | 1;
+  let lyric = "";
+  let lyricIndex = 0;
+  const frameOffset = { offset: 0 };
+  function pushNote() {
+    if (Number.isNaN(key)) {
+      key = -1;
+      return;
+    }
+    if (key === -1)
+      notes.push({
+        lyric: "",
+        frame_length: calcFrame({ tempo: 120, tempoNote: 4, noteLength }, frameOffset).frameLength,
+      });
+    else
+      notes.push({
+        lyric: "ら",
+        frame_length: calcFrame({ tempo: 120, tempoNote: 4, noteLength }, frameOffset).frameLength,
+        key: key + 12 * keyShift,
+      });
+    noteLength = 8;
+    key = -1;
+    keyShift = 0;
+  }
+  function pushLyric() {
+    if (lyric === "") return;
+    const note = notes.at(lyricIndex);
+    if (!note) return;
+    if (!note.key) {
+      lyricIndex++;
+      pushLyric();
+      return;
+    } else {
+      note.lyric = lyric;
+      lyricIndex++;
+      return;
+    }
+  }
+  function setKeyShift(shift: 1 | -1) {
+    pushNote();
+    keyShift = shift;
+  }
+  function setKey(k: number) {
+    if (keyShift === 0 || key !== -1) pushNote();
+    key = k;
+  }
+  notes.push({ lyric: "", frame_length: 30 });
+  for (let i = 0; i < input.length; i++) {
+    if (i < 2) continue;
+    const char = input[i];
+    const charCode = char.charCodeAt(0);
+    if (
+      !isNote &&
+      ((charCode >= 0x3041 && charCode <= 0x3094) || (charCode >= 0x30a1 && charCode <= 0x30f4) || charCode === 0x30f6)
+    ) {
+      if (smallChar.includes(char)) lyric += char;
+      else {
+        pushLyric();
+        lyric = char;
+      }
+    } else if (char === "上") setKeyShift(1);
+    else if (char === "下") setKeyShift(-1);
+    else if (char === "ど" || char === "と") setKey(60);
+    else if (char === "れ") setKey(62);
+    else if (char === "み") setKey(64);
+    else if (char === "ふ") setKey(65);
+    else if (char === "そ") setKey(67);
+    else if (char === "ら") setKey(69);
+    else if (char === "し") setKey(71);
+    else if (char === "#" || char === "＃" || char === "♯") key++;
+    else if (char === "b" || char === "♭") key--;
+    else if (char === "ー") noteLength = 4;
+    else if (char === "か") {
+      pushNote();
+      isNote = false;
+    }
+  }
+  if (isNote) pushNote();
+  else pushLyric();
+  notes.push({ lyric: "", frame_length: 30 });
+  return notes;
+};
+
 interface CalcFlameOptions {
   tempo: number;
   tempoNote: number;
