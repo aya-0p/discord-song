@@ -178,11 +178,11 @@ const checkIsChar = (...arr: Array<Array<string>>) => {
       if (text.length !== 1) {
         console.error(
           `error: [checkIsChar] ${text} is not 1 char, is ${text[0]} + ${text[1]} (${text.charCodeAt(
-            0
-          )} + ${text.charCodeAt(1)})`
+            0,
+          )} + ${text.charCodeAt(1)})`,
         );
       }
-    })
+    }),
   );
 };
 checkIsChar(controlChars);
@@ -191,7 +191,7 @@ export const isSong = (text: string) => {
   return songStart.some((t) => text[0] === t) && sep.some((t) => text[1] === t);
 };
 
-const calcFrame = ({ tempo, tempoNote, noteLength }: CalcFlameOptions, frameOffset: { offset: number }) => {
+const calcFrame = ({ noteLength, tempo, tempoNote }: CalcFlameOptions, frameOffset: { offset: number }) => {
   // 四分音符=60 = 八分音符=120
   // 4 / tempoNote;
   // テンポが60のとき、1拍=1s
@@ -224,16 +224,17 @@ const calcKey = (basePitch: number, noteType: number, pitchChanges: number) => {
 export const parseNotes = (input: string) => {
   let tempo = defaultTempo;
   let tempoNote = defaultTempoNote;
-  let meterHigh = defaultMeterHigh;
-  let meterLow = defaultMeterLow;
+  const meterHigh = defaultMeterHigh;
+  const meterLow = defaultMeterLow;
   let teacher = 6000;
   let singer = 3001;
   let scorePitch = 0;
   let voicePitch = 0;
   let firstSettings = true;
-  let frameOffset = { offset: 0 };
+  const frameOffset = { offset: 0 };
   const notes: Array<Note> = [];
   notes.push({ frame_length: 94, lyric: "" });
+  // eslint-disable-next-line no-control-regex
   for (const noteStr of input.split(/[\u0020\u3000\u000a\u000d\u0009;；]/)) {
     let noteType = -1;
     let noteLength = 8;
@@ -242,8 +243,8 @@ export const parseNotes = (input: string) => {
     let lyric = defaultLyric;
     let isLyricMode = false;
     const settings = {
-      isReadingKey: true,
       data: new Map<string, string>(),
+      isReadingKey: true,
       tempKey: "",
       tempValue: "",
     };
@@ -254,6 +255,7 @@ export const parseNotes = (input: string) => {
         case -1:
           break;
         case 0: {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           if (noteChar === "{") null;
           else if (noteChar === "}") {
             settings.data.set(settings.tempKey, settings.tempValue);
@@ -324,6 +326,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 2: {
           // 高さ上下
           if (pitchOffsets.includes(noteChar)) {
@@ -334,6 +337,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 3: {
           // 音
           if (noteTypes.includes(noteChar)) {
@@ -350,6 +354,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 4: {
           // 半音
           if (halfNotes.includes(noteChar)) {
@@ -360,6 +365,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 5: {
           // 長さ
           if (noteLengths.includes(noteChar)) {
@@ -373,6 +379,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 6: {
           // 連符
           if (tuplets.includes(noteChar)) {
@@ -382,6 +389,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 7: {
           // 付点
           if (notePlus.includes(noteChar)) {
@@ -390,6 +398,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         case 8: {
           // 歌詞
           if (isLyricMode) {
@@ -402,6 +411,7 @@ export const parseNotes = (input: string) => {
             break;
           }
         }
+        // eslint-disable-next-line no-fallthrough
         default: {
           console.error("ここには来ないはずです", noteChar, noteStr);
         }
@@ -410,13 +420,13 @@ export const parseNotes = (input: string) => {
     if (noteType === -1) continue;
     else if (Number.isNaN(noteType))
       notes.push({
-        frame_length: calcFrame({ tempo, tempoNote, noteLength }, frameOffset).frameLength,
+        frame_length: calcFrame({ noteLength, tempo, tempoNote }, frameOffset).frameLength,
         lyric: "",
       });
     else
       notes.push({
+        frame_length: calcFrame({ noteLength, tempo, tempoNote }, frameOffset).frameLength,
         key: calcKey(basePitch, noteType, scorePitch),
-        frame_length: calcFrame({ tempo, tempoNote, noteLength }, frameOffset).frameLength,
         lyric,
       });
     firstSettings = false;
@@ -424,8 +434,8 @@ export const parseNotes = (input: string) => {
   notes.push({ frame_length: 94, lyric: "" });
   return {
     notes,
-    teacher,
     singer,
+    teacher,
     voicePitch,
   };
 };
@@ -468,14 +478,14 @@ export const parseEasyScore = (input: string) => {
     }
     if (key === -1)
       notes.push({
+        frame_length: calcFrame({ noteLength, tempo: 120, tempoNote: 4 }, frameOffset).frameLength,
         lyric: "",
-        frame_length: calcFrame({ tempo: 120, tempoNote: 4, noteLength }, frameOffset).frameLength,
       });
     else
       notes.push({
-        lyric: "ら",
-        frame_length: calcFrame({ tempo: 120, tempoNote: 4, noteLength }, frameOffset).frameLength,
+        frame_length: calcFrame({ noteLength, tempo: 120, tempoNote: 4 }, frameOffset).frameLength,
         key: key + 12 * keyShift,
+        lyric: "ら",
       });
     noteLength = 8;
     key = -1;
@@ -485,7 +495,7 @@ export const parseEasyScore = (input: string) => {
     if (lyric === "") return;
     const note = notes.at(lyricIndex);
     if (!note) return;
-    if (!note.key) {
+    if (note.key == null) {
       lyricIndex++;
       pushLyric();
       return;
@@ -495,7 +505,7 @@ export const parseEasyScore = (input: string) => {
       return;
     }
   }
-  function setKeyShift(shift: 1 | -1) {
+  function setKeyShift(shift: -1 | 1) {
     pushNote();
     keyShift = shift;
   }
@@ -503,7 +513,7 @@ export const parseEasyScore = (input: string) => {
     if (keyShift === 0 || key !== -1) pushNote();
     key = k;
   }
-  notes.push({ lyric: "", frame_length: 30 });
+  notes.push({ frame_length: 30, lyric: "" });
   for (let i = 0; i < input.length; i++) {
     if (i < 2) continue;
     const char = input[i];
@@ -536,7 +546,7 @@ export const parseEasyScore = (input: string) => {
   }
   if (isNote) pushNote();
   else pushLyric();
-  notes.push({ lyric: "", frame_length: 30 });
+  notes.push({ frame_length: 30, lyric: "" });
   return notes;
 };
 
