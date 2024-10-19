@@ -2,52 +2,52 @@ import axios from "axios";
 import "dotenv/config";
 
 export const VOICEVOX = {
+  audioQuery: async (text: string, speaker: number) => {
+    const result = await axios.post(
+      `${process.env.VOICEVOX as string}/audio_query`,
+      {},
+      {
+        params: {
+          speaker: speaker,
+          text: text,
+        },
+        timeout: 60 * 60 * 1000,
+      },
+    );
+    return result.data as AudioQuery;
+  },
+  frameSynthesis: async (singFrameAudioQuery: SingFrameAudioQuery, speaker: number) => {
+    const result = await axios.post(`${process.env.VOICEVOX as string}/frame_synthesis`, singFrameAudioQuery, {
+      params: {
+        speaker: speaker,
+      },
+      responseType: "arraybuffer",
+      timeout: 60 * 60 * 1000,
+    });
+    return Buffer.from(result.data as ArrayBuffer);
+  },
   getVersion: async () => {
-    const result = await axios.get((process.env.VOICEVOX as string) + "/version", {
+    const result = await axios.get(`${process.env.VOICEVOX as string}/version`, {
       timeout: 60 * 60 * 1000,
     });
     return result.data as string;
   },
-  audioQuery: async (text: string, speaker: number) => {
-    const result = await axios.post(
-      (process.env.VOICEVOX as string) + "/audio_query",
-      {},
-      {
-        timeout: 60 * 60 * 1000,
-        params: {
-          text: text,
-          speaker: speaker,
-        },
-      }
-    );
-    return result.data as AudioQuery;
-  },
   singFrameAudioQuery: async (speaker: number, singFrame: Score) => {
-    const result = await axios.post((process.env.VOICEVOX as string) + "/sing_frame_audio_query", singFrame, {
-      timeout: 60 * 60 * 1000,
+    const result = await axios.post(`${process.env.VOICEVOX as string}/sing_frame_audio_query`, singFrame, {
       params: {
         speaker: speaker,
       },
+      timeout: 60 * 60 * 1000,
     });
     return result.data as SingFrameAudioQuery;
   },
   synthesis: async (audioQuery: AudioQuery, speaker: number) => {
-    const result = await axios.post((process.env.VOICEVOX as string) + "/synthesis", audioQuery, {
-      timeout: 60 * 60 * 1000,
+    const result = await axios.post(`${process.env.VOICEVOX as string}/synthesis`, audioQuery, {
       params: {
         speaker: speaker,
       },
       responseType: "arraybuffer",
-    });
-    return Buffer.from(result.data as ArrayBuffer);
-  },
-  frameSynthesis: async (singFrameAudioQuery: SingFrameAudioQuery, speaker: number) => {
-    const result = await axios.post((process.env.VOICEVOX as string) + "/frame_synthesis", singFrameAudioQuery, {
       timeout: 60 * 60 * 1000,
-      params: {
-        speaker: speaker,
-      },
-      responseType: "arraybuffer",
     });
     return Buffer.from(result.data as ArrayBuffer);
   },
@@ -63,7 +63,7 @@ interface AudioQuery {
   postPhonemeLength: number;
   outputSamplingRate: number;
   outputStereo: boolean;
-  kana: string | null;
+  kana: null | string;
 }
 
 interface AccentPhrase {
@@ -75,11 +75,11 @@ interface AccentPhrase {
 
 interface Mora {
   text: string;
-  consonant: string | null;
-  consonant_length: number | null;
+  consonant: null | string;
+  consonant_length: null | number;
   vowel: string;
   vowel_length: number;
-  pitch: number | null;
+  pitch: null | number;
 }
 
 interface Score {
