@@ -1,20 +1,20 @@
-import { Client, GuildMember, IntentsBitField, Snowflake, TextBasedChannel, VoiceChannel } from "discord.js";
+import { Client, GuildMember, IntentsBitField, VoiceChannel } from "discord.js";
+import type { Snowflake, TextBasedChannel } from "discord.js";
 import {
-  AudioPlayer,
   AudioPlayerStatus,
   NoSubscriberBehavior,
-  VoiceConnection,
   VoiceConnectionStatus,
   createAudioPlayer,
   createAudioResource,
   joinVoiceChannel,
+  entersState,
 } from "@discordjs/voice";
+import type { AudioPlayer, VoiceConnection } from "@discordjs/voice";
 import { commands } from "./commands";
 import { VOICEVOX } from "./voicevox";
 import { Duplex } from "stream";
 import { isSong, parseEasyScore, parseNotes } from "./parseSong";
 import { Queue } from "./queue.js";
-import { entersState } from "@discordjs/voice";
 
 const client = new Client({
   intents: [
@@ -29,8 +29,10 @@ const client = new Client({
 const voiceConnections = new Map<Snowflake, Connection>();
 
 client.on("messageCreate", (message) => {
+  // Botによる投稿、システムによる投稿、見れる人が限られた投稿は無視
   if (message.author.bot || message.author.system || message.flags.has("Ephemeral")) return;
   const voiceConnection = voiceConnections.get(message.guildId ?? "");
+  // 通話接続がなければ終了
   if (!voiceConnection) return;
   if (isSong(message.content)) {
     const score = parseNotes(message.content);
