@@ -9,7 +9,6 @@ export async function generateMusic(teacher: number, singer: number, notes: Note
   const tempSplitedNotes: Note[] = [];
   let tempRestNoteLength: number = 0;
   notes.forEach((value, index) => {
-    if (index === 0) return;
     if (notes.length - 1 === index) {
       if (tempSplitedNotes.length > 0) {
         splitedNotes.push([...tempSplitedNotes, createRestNote(tempRestNoteLength)]);
