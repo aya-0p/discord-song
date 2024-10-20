@@ -15,6 +15,7 @@ import { VOICEVOX } from "./voicevox";
 import { Duplex } from "stream";
 import { isSong, parseEasyScore, parseNotes } from "./parseSong";
 import { Queue } from "./queue.js";
+import { generateMusic } from "./generateMusic";
 
 const client = new Client({
   intents: [
@@ -36,35 +37,18 @@ client.on("messageCreate", (message) => {
   if (!voiceConnection) return;
   if (isSong(message.content)) {
     const score = parseNotes(message.content);
-    VOICEVOX.singFrameAudioQuery(score.teacher, {
-      notes: score.notes,
-    })
-      .then((singFrameAudioQuery) => {
-        singFrameAudioQuery.f0 = singFrameAudioQuery.f0.map((f0) => f0 * 2 ** (score.voicePitch / 12));
-        VOICEVOX.frameSynthesis(singFrameAudioQuery, score.singer)
-          .then((data) => {
-            voiceConnection.waitingList.add(data);
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+    generateMusic(score.teacher, score.singer, score.notes, score.voicePitch)
+      .then((data) => {
+        voiceConnection.waitingList.add(data);
       })
       .catch((err) => {
         console.error(err);
       });
   } else if (message.content.startsWith("き")) {
     const score = parseEasyScore(message.content);
-    VOICEVOX.singFrameAudioQuery(6000, {
-      notes: score,
-    })
-      .then((singFrameAudioQuery) => {
-        VOICEVOX.frameSynthesis(singFrameAudioQuery, 3001)
-          .then((data) => {
-            voiceConnection.waitingList.add(data);
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+    generateMusic(6000, 3001, score)
+      .then((data) => {
+        voiceConnection.waitingList.add(data);
       })
       .catch((err) => {
         console.error(err);

@@ -19,9 +19,20 @@ export const VOICEVOX = {
     );
     return result.data as AudioQuery;
   },
+  connectWaves: async (waves: Array<Buffer>) => {
+    const result = await axios.post(
+      `${process.env.VOICEVOX as string}/connect_waves`,
+      [...waves.map((wave) => wave.toString("base64"))],
+      {
+        responseType: "arraybuffer",
+        timeout: 60 * 60 * 1000,
+      },
+    );
+    return Buffer.from(result.data as ArrayBuffer);
+  },
   engineManifest: createEngineManifest(),
-  frameSynthesis: async (singFrameAudioQuery: SingFrameAudioQuery, speaker: number) => {
-    const result = await axios.post(`${process.env.VOICEVOX as string}/frame_synthesis`, singFrameAudioQuery, {
+  frameSynthesis: async (frameAudioQuery: FrameAudioQuery, speaker: number) => {
+    const result = await axios.post(`${process.env.VOICEVOX as string}/frame_synthesis`, frameAudioQuery, {
       params: {
         speaker: speaker,
       },
@@ -50,7 +61,7 @@ export const VOICEVOX = {
       },
       timeout: 60 * 60 * 1000,
     });
-    return result.data as SingFrameAudioQuery;
+    return result.data as FrameAudioQuery;
   },
   synthesis: async (audioQuery: AudioQuery, speaker: number) => {
     const result = await axios.post(`${process.env.VOICEVOX as string}/synthesis`, audioQuery, {
@@ -118,7 +129,7 @@ export interface Note {
   lyric: string;
 }
 
-interface SingFrameAudioQuery {
+interface FrameAudioQuery {
   f0: Array<number>;
   volume: Array<number>;
   phonemes: Array<Phoneme>;
