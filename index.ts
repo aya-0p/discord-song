@@ -1,21 +1,21 @@
-import { Client, GuildMember, IntentsBitField, VoiceChannel } from "discord.js";
-import type { Snowflake, TextBasedChannel } from "discord.js";
+import type { AudioPlayer, VoiceConnection } from "@discordjs/voice";
 import {
   AudioPlayerStatus,
   NoSubscriberBehavior,
   VoiceConnectionStatus,
   createAudioPlayer,
   createAudioResource,
-  joinVoiceChannel,
   entersState,
+  joinVoiceChannel,
 } from "@discordjs/voice";
-import type { AudioPlayer, VoiceConnection } from "@discordjs/voice";
-import { commands } from "./commands";
-import { VOICEVOX } from "./voicevox";
+import type { Snowflake, TextBasedChannel } from "discord.js";
+import { Client, GuildMember, IntentsBitField, VoiceChannel } from "discord.js";
 import { Duplex } from "stream";
-import { isSong, parseEasyScore, parseNotes } from "./parseSong";
-import { Queue } from "./queue.js";
+import { commands } from "./commands";
 import { generateMusic } from "./generateMusic";
+import { isEasyScore, isScore, parseEasyScore, parseNotes } from "./parseSong";
+import { Queue } from "./queue.js";
+import { VOICEVOX } from "./voicevox";
 
 const client = new Client({
   intents: [
@@ -35,7 +35,7 @@ client.on("messageCreate", (message) => {
   const voiceConnection = voiceConnections.get(message.guildId ?? "");
   // 通話接続がなければ終了
   if (!voiceConnection) return;
-  if (isSong(message.content)) {
+  if (isScore(message.content)) {
     const score = parseNotes(message.content);
     generateMusic(score.teacher, score.singer, score.notes, score.voicePitch)
       .then((data) => {
@@ -44,7 +44,7 @@ client.on("messageCreate", (message) => {
       .catch((err) => {
         console.error(err);
       });
-  } else if (message.content.startsWith("き")) {
+  } else if (isEasyScore(message.content)) {
     const score = parseEasyScore(message.content);
     generateMusic(6000, 3001, score)
       .then((data) => {

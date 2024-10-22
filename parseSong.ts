@@ -144,8 +144,12 @@ checkIsChar(controlChars);
  * 入力文字列が曲かどうかを識別する
  * @returns 1文字目が`songStart`で2文字目が`sep`であれば`true`
  */
-export function isSong(text: string) {
+export function isScore(text: string) {
   return songStart.includes(text[0]) && sep.includes(text[1]);
+}
+
+export function isEasyScore(text: string) {
+  return text[0] === "き" && text[1] === " ";
 }
 
 function calcFrame({ noteLength, tempo, tempoNote }: CalcFlameOptions, frameOffset: { offset: number }) {
