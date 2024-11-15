@@ -149,7 +149,7 @@ export function isScore(text: string) {
 }
 
 export function isEasyScore(text: string) {
-  return text[0] === "き" && text[1] === " ";
+  return text[0] === "き" && [" ", "\n"].includes(text[1]);
 }
 
 function calcFrame({ noteLength, tempo, tempoNote }: CalcFlameOptions, frameOffset: { offset: number }) {
