@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.15.0",
-    "@types/node": "22.9.0",
+    "@types/node": "22.9.3",
     "eslint": "9.14.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-perfectionist": "3.9.1",
