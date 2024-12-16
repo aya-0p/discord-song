@@ -15,21 +15,21 @@
   "license": "MIT",
   "dependencies": {
     "@discordjs/voice": "0.18.0",
-    "axios": "1.7.8",
+    "axios": "1.7.9",
     "discord.js": "14.16.3",
-    "dotenv": "16.4.5",
+    "dotenv": "16.4.7",
     "sodium-native": "4.3.1"
   },
   "devDependencies": {
-    "@eslint/js": "9.16.0",
-    "@types/node": "22.10.1",
-    "eslint": "9.16.0",
+    "@eslint/js": "9.17.0",
+    "@types/node": "22.10.2",
+    "eslint": "9.17.0",
     "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-perfectionist": "4.1.2",
+    "eslint-plugin-perfectionist": "4.3.0",
     "eslint-plugin-prettier": "5.2.1",
     "globals": "15.13.0",
-    "prettier": "3.4.1",
+    "prettier": "3.4.2",
     "typescript": "5.7.2",
-    "typescript-eslint": "8.16.0"
+    "typescript-eslint": "8.18.0"
   }
 }
