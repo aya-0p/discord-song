@@ -21,8 +21,8 @@ importers:
         specifier: 16.5.0
         version: 16.5.0
       sodium-native:
-        specifier: 5.0.2
-        version: 5.0.2
+        specifier: 5.0.3
+        version: 5.0.3
     devDependencies:
       '@eslint/js':
         specifier: 9.26.0
@@ -965,8 +965,8 @@ packages:
     resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
     engines: {node: '>= 0.4'}
 
-  sodium-native@5.0.2:
-    resolution: {integrity: sha512-TwYApP254gkoWusrD0dTAbRnESnWLKKBUx2gcdVKhrKg+4WZ85b8fUXvtaUAjcMXqBPEpGb/hJac7srBDAW+Jw==}
+  sodium-native@5.0.3:
+    resolution: {integrity: sha512-8mmRxZtN9Lw2foyBFuRO193OYmyQ9fnXQrWIcUHn3XLmGZEU3QkCFauLA8zokoGM0nfsdo1OuvGOlL7591dYeQ==}
     engines: {bare: '>=1.16.0'}
 
   statuses@2.0.1:
@@ -2064,7 +2064,7 @@ snapshots:
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
 
-  sodium-native@5.0.2:
+  sodium-native@5.0.3:
     dependencies:
       require-addon: 1.1.0
       which-runtime: 1.2.1
