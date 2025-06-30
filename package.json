@@ -21,7 +21,7 @@
     "sodium-native": "5.0.2"
   },
   "devDependencies": {
-    "@eslint/js": "9.26.0",
+    "@eslint/js": "9.30.0",
     "@types/node": "22.15.17",
     "eslint": "9.26.0",
     "eslint-config-prettier": "10.1.5",
