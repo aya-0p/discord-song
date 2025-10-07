@@ -14,22 +14,22 @@
   "author": "aya-0p",
   "license": "MIT",
   "dependencies": {
-    "@discordjs/voice": "0.18.0",
-    "axios": "1.11.0",
-    "discord.js": "14.21.0",
-    "dotenv": "17.2.1",
-    "sodium-native": "5.0.6"
+    "@discordjs/voice": "0.19.0",
+    "axios": "1.12.2",
+    "discord.js": "14.22.1",
+    "dotenv": "17.2.3",
+    "sodium-native": "5.0.9"
   },
   "devDependencies": {
-    "@eslint/js": "9.32.0",
-    "@types/node": "24.1.0",
-    "eslint": "9.32.0",
+    "@eslint/js": "9.37.0",
+    "@types/node": "24.7.0",
+    "eslint": "9.37.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-perfectionist": "4.15.0",
-    "eslint-plugin-prettier": "5.5.3",
-    "globals": "16.3.0",
+    "eslint-plugin-perfectionist": "4.15.1",
+    "eslint-plugin-prettier": "5.5.4",
+    "globals": "16.4.0",
     "prettier": "3.6.2",
-    "typescript": "5.8.3",
-    "typescript-eslint": "8.38.0"
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.0"
   }
 }
